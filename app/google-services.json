@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "986622487381",
+    "project_id": "finance-app-be908",
+    "storage_bucket": "finance-app-be908.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986622487381:android:6489c4fb47cb4fe9d71ddc",
+        "android_client_info": {
+          "package_name": "kwiatkowski.dominik.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "986622487381-05opeerdh51u2nm8rruf3rddh31deudv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNd2_FYqgh_oDZL3OE7m-FLIOmQ7s0ido"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "986622487381-05opeerdh51u2nm8rruf3rddh31deudv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
