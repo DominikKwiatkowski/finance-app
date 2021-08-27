@@ -1,5 +1,6 @@
 package kwiatkowski.dominik.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -8,7 +9,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,11 +24,11 @@ import android.view.View;
 import android.widget.Button;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -50,10 +50,11 @@ public class MainPanel extends AppCompatActivity {
     private TextInputEditText expenses;
     private DocumentReference userDoc;
     private DocumentReference expenditureDoc = null;
-
     //TAGs
     private final String userDataTag = "USERDATATAG";
     private final String expenditureTag = "EXPENDTAG";
+    private DocumentSnapshot userSnap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,14 +109,14 @@ public class MainPanel extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(userDataTag, "DocumentSnapshot data: " + document.getData());
+                    userSnap = task.getResult();
+                    if (userSnap.exists()) {
+                        Log.d(userDataTag, "DocumentSnapshot data: " + userSnap.getData());
                     } else {
                         Log.d(userDataTag, "First logging, creating document");
                         //create one
                         Map<String, Object> data = new HashMap<>();
-                        database.collection("users").document(mAuth.getCurrentUser().getEmail()).set(data);
+                        userDoc.set(data);
                     }
                 } else {
                     Log.d(userDataTag, "get failed with ", task.getException());
@@ -124,6 +125,7 @@ public class MainPanel extends AppCompatActivity {
         });
     }
 
+    // creates menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -131,19 +133,35 @@ public class MainPanel extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    // Function is responsible for
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
+        Intent i;
         switch (item.getItemId())
         {
             case R.id.signout:
                 mAuth.signOut();
                 this.finish();
                 break;
+            case R.id.expenditures:
+                i = new Intent(getApplicationContext(), ExpenditureList.class);
+                ArrayList<String> friendList = (ArrayList<String>) userSnap.get("friendList");
+                friendList.add(0,mAuth.getCurrentUser().getEmail());
+                i.putExtra("friendList", friendList);
+                startActivity(i);
+                break;
+            case R.id.addFriend:
+                i = new Intent(getApplicationContext(), AddFriend.class);
+                ArrayList<String> pendingRequest = (ArrayList<String>) userSnap.get("sendRequest");
+                i.putExtra("sendRequest", pendingRequest);
+                startActivity(i);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    // updates document - it should be moved to firebase Tools...
     private void updateDocument(Map<String, Object> data)
     {
         expenditureDoc.update(data).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -158,50 +176,51 @@ public class MainPanel extends AppCompatActivity {
             }
         });
     }
-    
+
+    // Send data to database
     private void sendToDatabase(String name)
     {
+        // Create data
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.GERMANY).format(new Date());
+        // Taking document name, it will by YYYY-MM
         expenditureDoc = userDoc.collection("expenses").document(timeStamp.substring(0,7));
+        // Put gathered data to data object
         Map<String, Object> data = new HashMap<>();
         Map<String, Object> nestedData = new HashMap<>();
         nestedData.put("type",name);
         nestedData.put("sum",Integer.parseInt(expenses.getText().toString()));
         data.put(timeStamp,nestedData);
-        if(expenditureDoc == null) {
-            expenditureDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            Log.d(userDataTag, "DocumentSnapshot data: " + document.getData());
-                            updateDocument(data);
-                        } else {
-                            Log.d(expenditureTag, "creating document");
 
-                            expenditureDoc.set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(expenditureTag, "Document created!");
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w(expenditureTag, "Error creating document", e);
-                                }
-                            });
-                        }
+        expenditureDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    // If document exist, we will update it. Otherwise we will create new document
+                    // for this month. Each month have separate document.
+                    if (document.exists()) {
+                        Log.d(userDataTag, "DocumentSnapshot data: " + document.getData());
+                        updateDocument(data);
                     } else {
-                        Log.d(expenditureTag, "get failed with ", task.getException());
+                        Log.d(expenditureTag, "creating document");
+                        data.put("name", timeStamp.substring(0,7));
+                        expenditureDoc.set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(expenditureTag, "Document created!");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(expenditureTag, "Error creating document", e);
+                            }
+                        });
                     }
-                }
 
-            });
-        }
-        else
-        {
-            updateDocument(data);
-        }
+                } else {
+                    Log.d(expenditureTag, "get failed with ", task.getException());
+                }
+            }
+        });
     }
 }

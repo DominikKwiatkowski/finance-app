@@ -84,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    // This function check if user was previous logged in and if was, it takes his data.
     @Override
     public void onStart() {
         super.onStart();
@@ -91,9 +93,8 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
     }
-    // [END on_start_check_user]
 
-    // [START onactivityresult]
+    // This proceed Google sign in, code from firebase documentation
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -113,9 +114,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    // [END onactivityresult]
 
-    // [START auth_with_google]
+    // Proceed token taken from google auth and try to sign in to firebase
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
@@ -137,8 +137,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // Create account in firebase with email and password
     private void createAccount(String email, String password) {
-        // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -155,9 +155,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-        // [END create_user_with_email]
     }
 
+    // Sign in with email and password
     private void signIn(String email, String password) {
         // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
@@ -176,10 +176,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-        // [END sign_in_with_email]
     }
-    // [END auth_with_google]
 
+    // if user is succesfully logged in, we proceed to another screen
     private void updateUI(FirebaseUser user) {
         if(user != null)
         {

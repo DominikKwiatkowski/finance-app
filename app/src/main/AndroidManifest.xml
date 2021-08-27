@@ -10,9 +10,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
         <activity
+            android:name=".AddFriend"
+            android:label="@string/title_activity_add_friend"
+            android:theme="@style/Theme.MyApplication.NoActionBar"></activity>
+        <activity android:name=".ExpenditureList" />
+        <activity
             android:name=".MainPanel"
             android:label="@string/title_activity_main_panel"
-            android:theme="@style/Theme.MyApplication.NoActionBar"></activity>
+            android:theme="@style/Theme.MyApplication.NoActionBar" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
