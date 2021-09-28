@@ -48,12 +48,8 @@ public class MainPanel extends AppCompatActivity {
     private Button work;
     private TextInputEditText category;
     private TextInputEditText expenses;
-    private DocumentReference userDoc;
-    private DocumentReference expenditureDoc = null;
-    //TAGs
-    private final String userDataTag = "USERDATATAG";
-    private final String expenditureTag = "EXPENDTAG";
     private DocumentSnapshot userSnap;
+    private FirebaseInstance firebaseInstance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,13 +74,13 @@ public class MainPanel extends AppCompatActivity {
         // get Firebase instances
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseFirestore.getInstance();
-
+        firebaseInstance = FirebaseInstance.getFirebaseInstance();
         // setup button listeners
         View.OnClickListener buttonListener = new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 Button b = (Button)v;
-                sendToDatabase(b.getText().toString());
+                firebaseInstance.sendToDatabase(b.getText().toString(), expenses.getText().toString());
             }
         };
         food.setOnClickListener(buttonListener);
@@ -98,29 +94,7 @@ public class MainPanel extends AppCompatActivity {
         others.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendToDatabase(category.getText().toString());
-            }
-        });
-
-        // Get current user document. This document have all necessary data about current user.
-        // All user documents are stored in this document collection.
-        userDoc = database.collection("users").document(mAuth.getCurrentUser().getEmail());
-        userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    userSnap = task.getResult();
-                    if (userSnap.exists()) {
-                        Log.d(userDataTag, "DocumentSnapshot data: " + userSnap.getData());
-                    } else {
-                        Log.d(userDataTag, "First logging, creating document");
-                        //create one
-                        Map<String, Object> data = new HashMap<>();
-                        userDoc.set(data);
-                    }
-                } else {
-                    Log.d(userDataTag, "get failed with ", task.getException());
-                }
+                firebaseInstance.sendToDatabase(category.getText().toString(), expenses.getText().toString());
             }
         });
     }
@@ -146,9 +120,6 @@ public class MainPanel extends AppCompatActivity {
                 break;
             case R.id.expenditures:
                 i = new Intent(getApplicationContext(), ExpenditureList.class);
-                ArrayList<String> friendList = (ArrayList<String>) userSnap.get("friendList");
-                friendList.add(0,mAuth.getCurrentUser().getEmail());
-                i.putExtra("friendList", friendList);
                 startActivity(i);
                 break;
             case R.id.addFriend:
@@ -159,68 +130,5 @@ public class MainPanel extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    // updates document - it should be moved to firebase Tools...
-    private void updateDocument(Map<String, Object> data)
-    {
-        expenditureDoc.update(data).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(expenditureTag, "DocumentSnapshot successfully updated!");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(expenditureTag, "Error updating document", e);
-            }
-        });
-    }
-
-    // Send data to database
-    private void sendToDatabase(String name)
-    {
-        // Create data
-        String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.GERMANY).format(new Date());
-        // Taking document name, it will by YYYY-MM
-        expenditureDoc = userDoc.collection("expenses").document(timeStamp.substring(0,7));
-        // Put gathered data to data object
-        Map<String, Object> data = new HashMap<>();
-        Map<String, Object> nestedData = new HashMap<>();
-        nestedData.put("type",name);
-        nestedData.put("sum",Integer.parseInt(expenses.getText().toString()));
-        data.put(timeStamp,nestedData);
-
-        expenditureDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    // If document exist, we will update it. Otherwise we will create new document
-                    // for this month. Each month have separate document.
-                    if (document.exists()) {
-                        Log.d(userDataTag, "DocumentSnapshot data: " + document.getData());
-                        updateDocument(data);
-                    } else {
-                        Log.d(expenditureTag, "creating document");
-                        data.put("name", timeStamp.substring(0,7));
-                        expenditureDoc.set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(expenditureTag, "Document created!");
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(expenditureTag, "Error creating document", e);
-                            }
-                        });
-                    }
-
-                } else {
-                    Log.d(expenditureTag, "get failed with ", task.getException());
-                }
-            }
-        });
     }
 }

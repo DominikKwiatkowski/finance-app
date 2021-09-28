@@ -46,7 +46,6 @@ public class AddFriend extends AppCompatActivity {
     private DocumentReference userDoc;
     private TextInputEditText friendEmail;
     private ArrayList<String> pendingEmail = new ArrayList<>();
-    private ArrayList<String> sendEmail = new ArrayList<>();
     private ArrayList<String> friendList = new ArrayList<>();
     private Context context;
     private ListenerRegistration registration;
