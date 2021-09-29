@@ -1,39 +1,21 @@
-package kwiatkowski.dominik.myapplication;
+package kwiatkowski.dominik.finance_app;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Vector;
 
-public class ExpenditureList extends AppCompatActivity {
+public class ExpenditureListActivity extends AppCompatActivity {
     //firebase instances
     private FirebaseInstance firebaseInstance;
     private TableLayout expenditureTable;
@@ -55,21 +37,23 @@ public class ExpenditureList extends AppCompatActivity {
         firebaseInstance.getIElement(context);
     }
 
+    // Append new bundle of data to scroll view of all expenditures.
     public void appendExpenditureList(Map<String, Object> data, String email)
     {
         SortedSet<String> keys = new TreeSet<String>(Collections.reverseOrder());
         keys.addAll(data.keySet());
         for (String key : keys) {
+            // skip name field
             if (key.equals("name"))
                 continue;
+
+            // Get bundle of expenditure data, key is timestamp of this data
             Map<String, Object> value = (Map<String, Object>) data.get(key);
-            TableRow tr = new TableRow(this);
-            TextView emailView = new TextView(this);
-            TextView timestampView = new TextView(this);
-            TextView typeView = new TextView(this);
-            TextView sumView = new TextView(this);
+
+
             String type = "";
             String sum = "";
+            // Get data from data budnle
             for (Map.Entry<String, Object> contents : value.entrySet()) {
                 switch (contents.getKey()) {
                     case "type":
@@ -80,11 +64,20 @@ public class ExpenditureList extends AppCompatActivity {
                         break;
                 }
             }
+            // Create row
+            TableRow tr = new TableRow(this);
+            TextView emailView = new TextView(this);
+            TextView timestampView = new TextView(this);
+            TextView typeView = new TextView(this);
+            TextView sumView = new TextView(this);
+
+            // Set row
             emailView.setText(email);
             timestampView.setText(key);
             typeView.setText(type);
             sumView.setText(sum);
 
+            // Add row
             tr.addView(emailView);
             tr.addView(timestampView);
             tr.addView(typeView);

@@ -1,4 +1,4 @@
-package kwiatkowski.dominik.myapplication;
+package kwiatkowski.dominik.finance_app;
 
 import org.junit.Test;
 

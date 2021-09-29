@@ -1,4 +1,4 @@
-package kwiatkowski.dominik.myapplication;
+package kwiatkowski.dominik.finance_app;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,7 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class MainActivity extends AppCompatActivity {
+public class LoggingActivity extends AppCompatActivity {
 
     private static final String TAG = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
         {
             emailInput.setText("");
             passInput.setText("");
-            Intent i = new Intent(getApplicationContext(), MainPanel.class);
+            Intent i = new Intent(getApplicationContext(), ExpenditureAddActivity.class);
             startActivity(i);
         }
     }

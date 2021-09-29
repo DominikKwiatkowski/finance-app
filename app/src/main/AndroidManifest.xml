@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="kwiatkowski.dominik.myapplication">
+    package="kwiatkowski.dominik.finance_app">
 
     <application
         android:allowBackup="true"
@@ -10,15 +10,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
         <activity
-            android:name=".AddFriend"
+            android:name="kwiatkowski.dominik.finance_app.AddFriendActivity"
             android:label="@string/title_activity_add_friend"
             android:theme="@style/Theme.MyApplication.NoActionBar"></activity>
-        <activity android:name=".ExpenditureList" />
+        <activity android:name="kwiatkowski.dominik.finance_app.ExpenditureListActivity" />
         <activity
-            android:name=".MainPanel"
+            android:name="kwiatkowski.dominik.finance_app.ExpenditureAddActivity"
             android:label="@string/title_activity_main_panel"
             android:theme="@style/Theme.MyApplication.NoActionBar" />
-        <activity android:name=".MainActivity">
+        <activity android:name="kwiatkowski.dominik.finance_app.LoggingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

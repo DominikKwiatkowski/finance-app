@@ -1,38 +1,21 @@
-package kwiatkowski.dominik.myapplication;
+package kwiatkowski.dominik.finance_app;
 
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-public class MainPanel extends AppCompatActivity {
+public class ExpenditureAddActivity extends AppCompatActivity {
     //firebase instances
     private FirebaseAuth mAuth;
     private FirebaseFirestore database;
@@ -48,7 +31,6 @@ public class MainPanel extends AppCompatActivity {
     private Button work;
     private TextInputEditText category;
     private TextInputEditText expenses;
-    private DocumentSnapshot userSnap;
     private FirebaseInstance firebaseInstance;
 
     @Override
@@ -80,7 +62,7 @@ public class MainPanel extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Button b = (Button)v;
-                firebaseInstance.sendToDatabase(b.getText().toString(), expenses.getText().toString());
+                firebaseInstance.sendDataToDatabase(b.getText().toString(), expenses.getText().toString());
             }
         };
         food.setOnClickListener(buttonListener);
@@ -94,7 +76,7 @@ public class MainPanel extends AppCompatActivity {
         others.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                firebaseInstance.sendToDatabase(category.getText().toString(), expenses.getText().toString());
+                firebaseInstance.sendDataToDatabase(category.getText().toString(), expenses.getText().toString());
             }
         });
     }
@@ -107,7 +89,7 @@ public class MainPanel extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    // Function is responsible for
+    // Function is responsible for functions when some menu item is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -116,16 +98,15 @@ public class MainPanel extends AppCompatActivity {
         {
             case R.id.signout:
                 mAuth.signOut();
+                FirebaseInstance.deleteInstance();
                 this.finish();
                 break;
             case R.id.expenditures:
-                i = new Intent(getApplicationContext(), ExpenditureList.class);
+                i = new Intent(getApplicationContext(), ExpenditureListActivity.class);
                 startActivity(i);
                 break;
             case R.id.addFriend:
-                i = new Intent(getApplicationContext(), AddFriend.class);
-                ArrayList<String> pendingRequest = (ArrayList<String>) userSnap.get("sendRequest");
-                i.putExtra("sendRequest", pendingRequest);
+                i = new Intent(getApplicationContext(), AddFriendActivity.class);
                 startActivity(i);
                 break;
         }
